@@ -3,13 +3,19 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/models/models.dart';
 import 'package:shop_app/widgets/widgets.dart';
 
-class MyCart extends StatelessWidget {
+class MyCart extends StatefulWidget {
   static const routename = '/mycart';
   const MyCart({Key? key}) : super(key: key);
 
   @override
+  _MyCartState createState() => _MyCartState();
+}
+
+class _MyCartState extends State<MyCart> {
+  @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context, listen: false);
+    final order = Provider.of<Order>(context, listen: false);
     final style = TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
     return Scaffold(
       appBar: AppBar(
@@ -29,9 +35,8 @@ class MyCart extends StatelessWidget {
                         ),
                         Text(
                           "Cart is empty",
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                          ),
+                          style:
+                              TextStyle(color: Colors.grey[400], fontSize: 16),
                         )
                       ],
                     )
@@ -74,10 +79,18 @@ class MyCart extends StatelessWidget {
                       padding: EdgeInsets.all(18),
                     ),
                     child: Text(
-                      'Checkout',
+                      'Order Now',
                       style: style,
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      if (cart.items.length != 0) {
+                        order.addOrders(cart.items.values.toList(),
+                            double.parse(cart.totalAmount));
+                        setState(() {
+                          cart.clearCart();
+                        });
+                      }
+                    },
                   ),
                 )
               ],

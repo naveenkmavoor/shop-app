@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 
 class CartItem {
@@ -75,5 +73,9 @@ class Cart with ChangeNotifier {
   void removeItem(String key) {
     _items.remove(key);
     notifyListeners();
+  }
+
+  void clearCart() {
+    _items = {}; 
   }
 }

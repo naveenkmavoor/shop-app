@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/models/models.dart';
-import 'package:shop_app/screens/screens.dart';
+import 'package:shop_app/screens/screens.dart'; 
 import 'package:shop_app/widgets/widgets.dart';
 
 enum FilterOptions { Favorites, All }
@@ -15,7 +15,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _isFavs = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(drawer: AppDrawer(),
         appBar: AppBar(
           title: Text('Shop App'),
           actions: [
