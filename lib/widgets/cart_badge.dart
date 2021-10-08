@@ -19,9 +19,10 @@ class Badge extends StatelessWidget {
             top: 8,
             child: Container(
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  color: color != null ? color : Theme.of(context).accentColor),
-              constraints: BoxConstraints(minHeight: 16, minWidth: 16),
+                borderRadius: BorderRadius.circular(10.0),
+                color: color != null ? color : Colors.red,
+              ),
+              constraints: BoxConstraints(minHeight: 15, minWidth: 15),
               child: Text(
                 value,
                 textAlign: TextAlign.center,

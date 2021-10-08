@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/models/models.dart';
-import 'package:shop_app/screens/screens.dart'; 
+import 'package:shop_app/screens/screens.dart';
 import 'package:shop_app/widgets/widgets.dart';
 
 enum FilterOptions { Favorites, All }
@@ -15,13 +15,17 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _isFavs = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(drawer: AppDrawer(),
+    return Scaffold(
+        drawer: AppDrawer(),
         appBar: AppBar(
           title: Text('Shop App'),
           actions: [
             Consumer(
-              builder: (ctx, Cart cart, child) {
-                return Badge(child: child, value: cart.items.length.toString());
+              builder: (ctx, Cart cart, Widget? child) {
+                print('${cart.items.length}');
+                return cart.items.length == 0
+                    ? child!
+                    : Badge(child: child, value: cart.items.length.toString());
               },
               child: IconButton(
                 icon: Icon(Icons.shopping_cart),
