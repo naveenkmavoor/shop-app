@@ -25,21 +25,31 @@ class ProductItem extends StatelessWidget {
         header: Text(
           '${product.price}\$',
           textAlign: TextAlign.right,
-          style: TextStyle(color: Theme.of(context).accentColor),
+          style: TextStyle(color: Theme.of(context).secondaryHeaderColor),
         ),
         footer: GridTileBar(
           trailing: IconButton(
-            color: Theme.of(context).accentColor,
+            color: Theme.of(context).secondaryHeaderColor,
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
+              
               cart.updateItems(
                   product.id, product.price, product.imageUrl, product.title);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Added item to cart!'),duration: Duration(seconds: 1),
+                action: SnackBarAction(
+                  label: 'UNDO',
+                  onPressed: () {
+                    cart.undoAction(product.id);
+                  },
+                ),
+              ));
             },
           ),
           backgroundColor: Colors.black87,
           leading: Consumer<Product>(
             builder: (ctx, product, _) => IconButton(
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).secondaryHeaderColor,
               icon: Icon(
                   product.isFavorite ? Icons.favorite : Icons.favorite_border),
               onPressed: () {

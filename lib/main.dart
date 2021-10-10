@@ -30,8 +30,11 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
             fontFamily: 'Lato',
-            primarySwatch: Colors.purple,
-            accentColor: Colors.deepOrange),
+            secondaryHeaderColor: Colors.deepOrange,
+            colorScheme: ColorScheme.fromSwatch().copyWith(
+              secondary: Colors.deepOrange,
+              primary: Colors.purple,
+            )),
         home: ProductsOverviewScreen(),
         routes: {
           ProductDetails.routeName: (context) => ProductDetails(),

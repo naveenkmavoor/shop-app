@@ -14,11 +14,33 @@ class ListCartItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print(cartItem);
+    print(keys);
     return Dismissible(
       key: ValueKey(keys),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
         Provider.of<Cart>(context, listen: false).removeItem(keys);
+      },
+      confirmDismiss: (direction) {
+        return showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+                  title: Text('Confirm action'),
+                  content:
+                      Text('Do you want to remove the item from the cart?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop(false);
+                        },
+                        child: Text('No')),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop(true);
+                        },
+                        child: Text('Yes')),
+                  ],
+                ));
       },
       background: Container(
         decoration: BoxDecoration(
@@ -82,8 +104,9 @@ class ListCartItem extends StatelessWidget {
                           cartItem['quantity']++;
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              backgroundColor: Theme.of(context).accentColor,
-                              duration: Duration(seconds: 2),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
+                              duration: Duration(seconds: 1),
                               content: Text(
                                   'Sorry, only 3 units allowed in each order')));
                         }
@@ -91,7 +114,7 @@ class ListCartItem extends StatelessWidget {
                       icon: Icon(Icons.add),
                       iconSize: 18,
                       splashRadius: 15,
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),
