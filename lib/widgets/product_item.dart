@@ -32,11 +32,11 @@ class ProductItem extends StatelessWidget {
             color: Theme.of(context).secondaryHeaderColor,
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
-              
               cart.updateItems(
                   product.id, product.price, product.imageUrl, product.title);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Added item to cart!'),duration: Duration(seconds: 1),
+                content: Text('Added item to cart!'),
+                duration: Duration(seconds: 1),
                 action: SnackBarAction(
                   label: 'UNDO',
                   onPressed: () {

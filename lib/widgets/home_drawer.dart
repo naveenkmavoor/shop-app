@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
+import 'package:shop_app/screens/product_edit_overview.dart'; 
 import 'package:shop_app/screens/screens.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -9,7 +10,8 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
-          AppBar(automaticallyImplyLeading: false,
+          AppBar(
+            automaticallyImplyLeading: false,
             title: Text('Home'),
             leading: Icon(Icons.home),
           ),
@@ -19,6 +21,13 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.of(context).popAndPushNamed(OrderScreen.routeName);
             },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.edit,
+            ),
+            title: Text('Manage Products'),
+            onTap: () => Navigator.of(context).popAndPushNamed(ProductEditOverview.routeName),
           ),
           ListTile(
             leading: Icon(Icons.logout),
