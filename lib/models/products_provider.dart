@@ -1,43 +1,73 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shop_app/models/models.dart';
+import 'package:http/http.dart' as http;
 
 class ProductsProvider with ChangeNotifier {
-  List<Product> _items = [
-    Product(
-        id: 'p1',
-        title: 'Red Shirt',
-        description: "Red as blood!",
-        price: 19.99,
-        imageUrl: 'https://www.marni.com/12/12386489mt_13_n_r.jpg'),
-    Product(
-        id: 'p2',
-        title: 'Rain Jacket',
-        description: "Cheap, Eco-Friendly, Hiking and Running.",
-        price: 29.99,
-        imageUrl:
-            'https://media.wired.com/photos/606ce52941bf976945513469/191:100/w_2086,h_1092,c_limit/Gear-Cloudburst-Jacket---Mandarin-Front-square-grey-back.jpg'),
-    Product(
-        id: 'p3',
-        title: 'Denim Jacket',
-        description: "Denim Winter Warm Wool Denim Jacket",
-        price: 39.99,
-        imageUrl:
-            'https://img.joomcdn.net/3d9ab777e9ab4e964c5c6377de686b521a46635a_original.jpeg'),
-    Product(
-        id: 'p4',
-        title: 'T-Shirt',
-        description: "Vogue T-shirt for men.",
-        price: 29.99,
-        imageUrl:
-            'https://assets.vogue.com/photos/605a71e1fcace3ac4650f07b/master/w_1280%2Cc_limit/slide_13.jpg'),
-  ];
+  List<Product> _items = [];
 
   List<Product> get items {
     return [..._items];
   }
 
-  void addProduct(Product products) {
-    _items.add(products);
+  void updateProduct(Product product) {
+    final int index = _items.indexWhere((element) => element.id == product.id);
+    _items[index] = product;
+    notifyListeners();
+  }
+
+  Future<void> addProduct(Product product) async {
+    const url =
+        'https://shopapp-67ac8-default-rtdb.firebaseio.com/products.json';
+    try {
+      final http.Response _response = await http.post(Uri.parse(url),
+          body: json.encode({
+            'title': product.title,
+            'description': product.description,
+            'price': product.price,
+            'imageUrl': product.imageUrl
+          }));
+      print("${_response.body}");
+      product = Product(
+          id: json.decode(_response.body)['name'],
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl);
+      _items.add(product);
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
+
+  Future<void> fetchProduct() async {
+    _items = [];
+    const url =
+        'https://shopapp-67ac8-default-rtdb.firebaseio.com/products.json';
+    try {
+      final http.Response response = await http.get(Uri.parse(url));
+      final fetchedProduct = json.decode(response.body) as Map<String, dynamic>;
+      fetchedProduct.forEach((key, value) {
+        final eachProduct = Product(
+            id: key,
+            title: value['title'],
+            description: value['description'],
+            price: value['price'],
+            imageUrl: value['imageUrl']);
+        print(eachProduct);
+        _items.add(eachProduct);
+        notifyListeners();
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  void deleteProduct(String id) {
+    _items.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 
