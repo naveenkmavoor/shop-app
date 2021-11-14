@@ -1,9 +1,7 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/models/products_provider.dart';
-import 'package:shop_app/screens/product_edit.dart';
+import 'screens.dart';
+import 'package:shop_app/providers/providers.dart';
 
 class ProductEditOverview extends StatelessWidget {
   static const routeName = '/producteditoverview';
@@ -12,12 +10,29 @@ class ProductEditOverview extends StatelessWidget {
     await Provider.of<ProductsProvider>(context, listen: false).fetchProduct();
   }
 
+  void _deleteItems(
+      BuildContext context, ProductsProvider provider, int index) async {
+    try {
+      Navigator.pop(context);
+      await provider.deleteProduct(provider.items[index].id);
+    } catch (err) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to delete!'),
+        backgroundColor: Theme.of(context).secondaryHeaderColor,
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text('Manage products'),
           actions: [
+            IconButton(
+                onPressed: Provider.of<ProductsProvider>(context, listen: false)
+                    .addItemforTesting,
+                icon: Icon(Icons.add_circle)),
             IconButton(
                 onPressed: () => Navigator.of(context)
                     .pushNamed(ProductEdit.routeName)
@@ -77,9 +92,8 @@ class ProductEditOverview extends StatelessWidget {
                                                 child: Text('Cancel')),
                                             TextButton(
                                                 onPressed: () {
-                                                  provider.deleteProduct(
-                                                      provider.items[index].id);
-                                                  Navigator.pop(context);
+                                                  _deleteItems(
+                                                      context, provider, index);
                                                 },
                                                 child: Text('Delete')),
                                           ],
