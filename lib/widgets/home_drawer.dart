@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart'; 
-import 'package:shop_app/screens/product_edit_overview.dart'; 
+import 'package:flutter/material.dart';
 import 'package:shop_app/screens/screens.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -27,7 +26,8 @@ class AppDrawer extends StatelessWidget {
               Icons.edit,
             ),
             title: Text('Manage Products'),
-            onTap: () => Navigator.of(context).popAndPushNamed(ProductEditOverview.routeName),
+            onTap: () => Navigator.of(context)
+                .popAndPushNamed(ProductEditOverview.routeName),
           ),
           ListTile(
             leading: Icon(Icons.logout),

@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/models/models.dart';
-import 'package:shop_app/models/orders.dart';
-import 'package:shop_app/models/products_provider.dart';
-import 'package:shop_app/screens/product_details.dart';
-import 'package:shop_app/screens/product_edit.dart';
-import 'package:shop_app/screens/product_edit_overview.dart';
+import 'package:shop_app/providers/providers.dart';
 import 'package:shop_app/screens/screens.dart';
 
 void main() {

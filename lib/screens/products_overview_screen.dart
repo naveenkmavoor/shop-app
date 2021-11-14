@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/models/models.dart';
-import 'package:shop_app/screens/product_edit.dart';
+import 'package:shop_app/providers/providers.dart';
 import 'package:shop_app/screens/screens.dart';
 import 'package:shop_app/widgets/widgets.dart';
 
@@ -33,21 +32,8 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         .fetchProduct()
         .catchError((err) {
       text = 'Couldn\'t reach the server this movement :(';
-      print('Hello');
-      showDialog(
-          context: context,
-          builder: (ctx) {
-            return AlertDialog(
-              title: Text('Oops!'),
-              content: Text('Somthing went wrong'),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context), child: Text('OK'))
-              ],
-            );
-          });
+      ShowAlertOnError.showAlertOnError(context);
     }).then((_) => setState(() {
-              print('world');
               _isLoading = false;
             }));
   }
@@ -114,6 +100,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
               onPressed: () => setState(() {
                     fetchItems(context);
                     _isLoading = true;
+                    text = '';
                   }),
               icon: Icon(Icons.refresh),
               label: Text('Reload'))

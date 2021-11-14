@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/models/product.dart';
-import 'package:shop_app/models/products_provider.dart';
+import 'package:shop_app/providers/providers.dart';
 
 class ProductEdit extends StatefulWidget {
   static const routeName = '/productedit';
@@ -76,9 +75,12 @@ class _ProductEditState extends State<ProductEdit> {
       _isLoading = true;
     });
     if (_product.id.isNotEmpty) {
-      Provider.of<ProductsProvider>(context, listen: false)
-          .updateProduct(_product);
-      print(_product.isFavorite);
+      try {
+        await Provider.of<ProductsProvider>(context, listen: false)
+            .updateProduct(_product);
+      } catch (err) {
+        showAlert(context);
+      }
     } else {
       try {
         await Provider.of<ProductsProvider>(context, listen: false)
@@ -86,17 +88,7 @@ class _ProductEditState extends State<ProductEdit> {
 
         print('Hello');
       } catch (err) {
-        _isAdded = await showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-                  title: Text('Oops!'),
-                  content: Text('Something goes wrong.'),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: Text('OK'))
-                  ],
-                ));
+        showAlert(context);
       } finally {
         setState(() {
           _isLoading = false;
@@ -104,6 +96,22 @@ class _ProductEditState extends State<ProductEdit> {
         Navigator.pop(context, _isAdded);
       }
     }
+  }
+
+  void showAlert(BuildContext context) async {
+    _isAdded = await showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: Text('Oops!'),
+            content: Text('Somthing went wrong'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text('OK'))
+            ],
+          );
+        });
   }
 
   @override
