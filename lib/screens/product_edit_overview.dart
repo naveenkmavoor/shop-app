@@ -17,7 +17,7 @@ class ProductEditOverview extends StatelessWidget {
       await provider.deleteProduct(provider.items[index].id);
     } catch (err) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to delete!'),
+        content: Text('$err'),
         backgroundColor: Theme.of(context).secondaryHeaderColor,
       ));
     }
