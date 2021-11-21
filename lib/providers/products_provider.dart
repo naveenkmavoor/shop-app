@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -19,17 +21,22 @@ class ProductsProvider with ChangeNotifier {
     final int index = _items.indexWhere((element) => element.id == product.id);
     if (index >= 0) {
       try {
-        final http.Response _response = await http
-            .patch(Uri.parse(_url + 'products/${product.id}.json'), body: {
-          'title': product.title,
-          'description': product.description,
-          'price': product.price,
-          'imageUrl': product.imageUrl
-        });
-        print(_response.body);
+        final http.Response response =
+            await http.patch(Uri.parse(_url + 'products/${product.id}.json'),
+                body: json.encode({
+                  'title': product.title,
+                  'description': product.description,
+                  'price': product.price,
+                  'imageUrl': product.imageUrl,
+                  'isFavorite': product.isFavorite
+                }));
+        if (response.statusCode >= 400) {
+          throw HttpException('Failed to update.');
+        }
       } catch (err) {
         throw err;
       }
+
       _items[index] = product;
       notifyListeners();
     }
@@ -64,21 +71,29 @@ class ProductsProvider with ChangeNotifier {
     _items = [];
     try {
       final http.Response response =
-          await http.get(Uri.parse(_url + 'products.json'));
+          await http.get(Uri.parse(_url + 'products.json')).timeout(
+                const Duration(seconds: 10),
+              );
+
       final fetchedProduct = json.decode(response.body) as Map<String, dynamic>;
+
       fetchedProduct.forEach((key, value) {
         final eachProduct = Product(
             id: key,
             title: value['title'],
             description: value['description'],
             price: value['price'],
-            imageUrl: value['imageUrl']);
-        print(eachProduct);
+            imageUrl: value['imageUrl'],
+            isFavorite: value['isFavorite']);
         _items.add(eachProduct);
         notifyListeners();
       });
-    } catch (error) {
-      throw error;
+    } on TimeoutException {
+      throw HttpException('Timeout Error');
+    } on SocketException {
+      throw HttpException('No Internet conncetion');
+    } on Error {
+      throw HttpException('Something went wrong!');
     }
   }
 
@@ -116,15 +131,16 @@ class ProductsProvider with ChangeNotifier {
         description: 'So comfy to wear.',
         price: rand.nextInt(100) + 1.0,
         imageUrl: test
-            ? 'https://webmerx.sgp1.cdn.digitaloceanspaces.com/khankudi/product_images/1634034869.TEEM0042.jpeg'
-            : 'https://webmerx.sgp1.cdn.digitaloceanspaces.com/khankudi/product_images/1624253310.TEEM0002.jpeg');
+            ? 'https://www.pngarts.com/files/5/Plain-Pink-T-Shirt-PNG-Photo.png'
+            : 'https://www.pngarts.com/files/5/Plain-Purple-T-Shirt-PNG-Photo.png');
     final http.Response response =
         await http.post(Uri.parse(_url + 'products.json'),
             body: json.encode({
               'title': newproduct.title,
               'description': newproduct.description,
               'price': newproduct.price,
-              'imageUrl': newproduct.imageUrl
+              'imageUrl': newproduct.imageUrl,
+              'isFavorite': newproduct.isFavorite
             }));
     _items.add(Product(
         id: json.decode(response.body)['name'],

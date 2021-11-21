@@ -27,15 +27,62 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     super.didChangeDependencies();
   }
 
-  void fetchItems(BuildContext context) {
-    Provider.of<ProductsProvider>(context, listen: false)
-        .fetchProduct()
-        .catchError((err) {
-      text = 'Couldn\'t reach the server this movement :(';
-      ShowAlertOnError.showAlertOnError(context);
-    }).then((_) => setState(() {
-              _isLoading = false;
-            }));
+  void fetchItems(BuildContext context) async {
+    try {
+      await Provider.of<ProductsProvider>(context, listen: false)
+          .fetchProduct();
+    } catch (err) {
+      text = err.toString();
+      ShowAlertOnError.showAlertOnError(context, text);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Widget bodyWidget() {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else if (text.isNotEmpty) {
+      return Center(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            text,
+            style: TextStyle(color: Colors.grey),
+          ),
+          TextButton.icon(
+              onPressed: () => setState(() {
+                    fetchItems(context);
+                    _isLoading = true;
+                    text = '';
+                  }),
+              icon: Icon(Icons.refresh),
+              label: Text('Reload'))
+        ],
+      ));
+    } else if (Provider.of<ProductsProvider>(context, listen: false)
+            .items
+            .length ==
+        0) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cloud_off, color: Colors.grey),
+            Text('No Items added yet'),
+            TextButton.icon(
+                onPressed: () =>
+                    Navigator.pushNamed(context, ProductEdit.routeName),
+                icon: Icon(Icons.add),
+                label: Text('Add Product'))
+          ],
+        ),
+      );
+    }
+    return ProductGridview(isFav: _isFavs);
   }
 
   @override
@@ -82,49 +129,5 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           ],
         ),
         body: bodyWidget());
-  }
-
-  Widget bodyWidget() {
-    if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
-    } else if (text.isNotEmpty) {
-      return Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            text,
-            style: TextStyle(color: Colors.grey),
-          ),
-          TextButton.icon(
-              onPressed: () => setState(() {
-                    fetchItems(context);
-                    _isLoading = true;
-                    text = '';
-                  }),
-              icon: Icon(Icons.refresh),
-              label: Text('Reload'))
-        ],
-      ));
-    } else if (Provider.of<ProductsProvider>(context, listen: false)
-            .items
-            .length ==
-        0) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.cloud_off, color: Colors.grey),
-            Text('No Items added yet'),
-            TextButton.icon(
-                onPressed: () =>
-                    Navigator.pushNamed(context, ProductEdit.routeName),
-                icon: Icon(Icons.add),
-                label: Text('Add Product'))
-          ],
-        ),
-      );
-    }
-    return ProductGridview(isFav: _isFavs);
   }
 }

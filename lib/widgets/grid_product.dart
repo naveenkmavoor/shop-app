@@ -14,12 +14,12 @@ class ProductGridview extends StatelessWidget {
     final productsData = Provider.of<ProductsProvider>(context);
     final products = isFav ? productsData.favItems : productsData.items;
     return GridView.builder(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(20.0),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            childAspectRatio: 0.7,
             crossAxisCount: 2,
-            childAspectRatio: 3 / 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10),
+            crossAxisSpacing: 8.0,
+            mainAxisSpacing: 8.0),
         itemCount: products.length,
         itemBuilder: (context, index) => ChangeNotifierProvider.value(
               value: products[index],

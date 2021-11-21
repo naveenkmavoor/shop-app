@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
             fontFamily: 'Lato',
+            scaffoldBackgroundColor: Color(0xffF2F2F2),
             secondaryHeaderColor: Colors.deepOrange,
             colorScheme: ColorScheme.fromSwatch().copyWith(
               secondary: Colors.deepOrange,
