@@ -13,121 +13,116 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _isFavs = false;
-  bool _isInit = true;
-  bool _isLoading = true;
-  String text = '';
-  @override
-  void didChangeDependencies() {
-    print('enter');
-    if (_isInit) {
-      print('entered');
-      fetchItems(context);
-    }
-    _isInit = false;
-    super.didChangeDependencies();
-  }
-
-  void fetchItems(BuildContext context) async {
-    try {
-      await Provider.of<ProductsProvider>(context, listen: false)
-          .fetchProduct();
-    } catch (err) {
-      text = err.toString();
-      ShowAlertOnError.showAlertOnError(context, text);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
 
   Widget bodyWidget() {
-    if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
-    } else if (text.isNotEmpty) {
-      return Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            text,
-            style: TextStyle(color: Colors.grey),
-          ),
-          TextButton.icon(
-              onPressed: () => setState(() {
-                    fetchItems(context);
-                    _isLoading = true;
-                    text = '';
-                  }),
-              icon: Icon(Icons.refresh),
-              label: Text('Reload'))
-        ],
-      ));
-    } else if (Provider.of<ProductsProvider>(context, listen: false)
-            .items
-            .length ==
-        0) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.cloud_off, color: Colors.grey),
-            Text('No Items added yet'),
-            TextButton.icon(
-                onPressed: () =>
-                    Navigator.pushNamed(context, ProductEdit.routeName),
-                icon: Icon(Icons.add),
-                label: Text('Add Product'))
-          ],
-        ),
-      );
-    }
-    return ProductGridview(isFav: _isFavs);
+    return FutureBuilder(
+      builder: (context, AsyncSnapshot<List<Product>> dataSnapshot) {
+        if (dataSnapshot.connectionState == ConnectionState.waiting) {
+          return SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()));
+        } else if (dataSnapshot.hasError) {
+          return SliverFillRemaining(
+            child: Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Oops! something goes wrong.",
+                  style: TextStyle(color: Colors.grey),
+                ),
+                TextButton.icon(
+                    onPressed: () => setState(() {}),
+                    icon: Icon(Icons.refresh),
+                    label: Text('Reload'))
+              ],
+            )),
+          );
+        } else if (dataSnapshot.data!.length == 0) {
+          return SliverFillRemaining(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_off, color: Colors.grey),
+                  Text('No Items found'),
+                  TextButton.icon(
+                      onPressed: () =>
+                          Navigator.pushNamed(context, ProductEdit.routeName),
+                      icon: Icon(Icons.add),
+                      label: Text('Add Product'))
+                ],
+              ),
+            ),
+          );
+        }
+        return ProductGridview(isFav: _isFavs);
+      },
+      future:
+          Provider.of<ProductsProvider>(context, listen: false).fetchProduct(),
+    );
+  }
+
+  void newstate() {
+    setState(() {});
+  }
+
+  Future<void> fetchval() async {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: AppDrawer(),
-        appBar: AppBar(
-          title: Text('Shop App'),
-          actions: [
-            Consumer(
-              builder: (ctx, Cart cart, Widget? child) {
-                return cart.items.length == 0
-                    ? child!
-                    : Badge(child: child, value: cart.items.length.toString());
-              },
-              child: IconButton(
-                icon: Icon(Icons.shopping_cart),
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(MyCart.routename),
+        drawer: AppDrawer(newstate: newstate),
+        body: RefreshIndicator(
+          onRefresh: () => fetchval(),
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                title: Text('Shopping Center'),
+                actions: [
+                  Consumer(
+                    builder: (ctx, Cart cart, Widget? child) {
+                      return cart.items.length == 0
+                          ? child!
+                          : Badge(
+                              child: child,
+                              value: cart.items.length.toString());
+                    },
+                    child: IconButton(
+                      icon: Icon(Icons.shopping_cart),
+                      onPressed: () =>
+                          Navigator.of(context).pushNamed(MyCart.routename),
+                    ),
+                  ),
+                  PopupMenuButton(
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        child: Text('Only Favorites'),
+                        value: FilterOptions.Favorites,
+                      ),
+                      PopupMenuItem(
+                        child: Text('Show All'),
+                        value: FilterOptions.All,
+                      ),
+                    ],
+                    onSelected: (FilterOptions val) {
+                      setState(() {
+                        if (val == FilterOptions.Favorites) {
+                          _isFavs = true;
+                        } else {
+                          _isFavs = false;
+                        }
+                      });
+                    },
+                    icon: Icon(Icons.more_vert),
+                  )
+                ],
+                floating: true,
               ),
-            ),
-            PopupMenuButton(
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  child: Text('Only Favorites'),
-                  value: FilterOptions.Favorites,
-                ),
-                PopupMenuItem(
-                  child: Text('Show All'),
-                  value: FilterOptions.All,
-                ),
-              ],
-              onSelected: (FilterOptions val) {
-                setState(() {
-                  if (val == FilterOptions.Favorites) {
-                    _isFavs = true;
-                  } else {
-                    _isFavs = false;
-                  }
-                });
-              },
-              icon: Icon(Icons.more_vert),
-            )
-          ],
-        ),
-        body: bodyWidget());
+              bodyWidget()
+            ],
+          ),
+        ));
   }
 }

@@ -21,7 +21,7 @@ class Order with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrders(List<CartItem> cartItems, double total) {
+  Future<void> addOrders(List<CartItem> cartItems, double total) async {
     _orders.insert(
         0,
         OrderItem(

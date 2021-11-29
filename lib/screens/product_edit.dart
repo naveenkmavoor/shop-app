@@ -74,27 +74,23 @@ class _ProductEditState extends State<ProductEdit> {
     setState(() {
       _isLoading = true;
     });
-    if (_product.id.isNotEmpty) {
-      try {
+    try {
+      if (_product.id.isNotEmpty) {
         await Provider.of<ProductsProvider>(context, listen: false)
             .updateProduct(_product);
-      } catch (err) {
-        showAlert(context);
-      }
-    } else {
-      try {
+      } else {
         await Provider.of<ProductsProvider>(context, listen: false)
             .addProduct(_product);
 
         print('Hello');
-      } catch (err) {
-        showAlert(context);
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.pop(context, _isAdded);
       }
+    } catch (err) {
+      showAlert(context);
+    } finally {
+      setState(() {
+        _isLoading = false;
+        Navigator.pop(context, _isAdded);
+      });
     }
   }
 
@@ -122,10 +118,12 @@ class _ProductEditState extends State<ProductEdit> {
         actions: [
           TextButton(
             onPressed: _saveValue,
-            child: Text(
-              'Save',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: _isLoading
+                ? Container()
+                : Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white),
+                  ),
           )
         ],
       ),

@@ -10,15 +10,22 @@ class ListCartItem extends StatelessWidget {
     required this.keys,
     required this.cartItem,
   }) : super(key: key);
+
+  void showAlertMessage(BuildContext context, String mssg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(mssg),
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      duration: Duration(seconds: 1),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(cartItem);
-    print(keys);
     return Dismissible(
       key: ValueKey(keys),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        Provider.of<Cart>(context, listen: false).removeItem(keys);
+        Provider.of<Cart>(context, listen: false).removeItemFromCart(keys);
       },
       confirmDismiss: (direction) {
         return showDialog(
@@ -63,7 +70,7 @@ class ListCartItem extends StatelessWidget {
               return ListTile(
                 title: Text(cartItem['title']),
                 leading: AspectRatio(
-                  aspectRatio: 3 / 2,
+                  aspectRatio: 1,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(5.0),
                     child: FadeInImage(
@@ -83,9 +90,14 @@ class ListCartItem extends StatelessWidget {
                     IconButton(
                       onPressed: () {
                         if (cartItem['quantity'] > 1) {
-                          cart.updateItems(keys, cartItem['price'],
-                              cartItem['image'], cartItem['title'], true);
                           cartItem['quantity']--;
+                          cart
+                              .updateCart(keys, cartItem['price'],
+                                  cartItem['image'], cartItem['title'], true)
+                              .catchError((err) {
+                            cartItem['quantity']++;
+                            showAlertMessage(context, err.toString());
+                          });
                         }
                       },
                       icon: Icon(Icons.remove),
@@ -98,16 +110,18 @@ class ListCartItem extends StatelessWidget {
                     IconButton(
                       onPressed: () {
                         if (cartItem['quantity'] < 3) {
-                          cart.updateItems(keys, cartItem['price'],
-                              cartItem['image'], cartItem['title']);
                           cartItem['quantity']++;
+
+                          cart
+                              .updateCart(keys, cartItem['price'],
+                                  cartItem['image'], cartItem['title'])
+                              .catchError((err) {
+                            cartItem['quantity']--;
+                            showAlertMessage(context, err.toString());
+                          });
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              duration: Duration(seconds: 1),
-                              content: Text(
-                                  'Sorry, only 3 units allowed in each order')));
+                          showAlertMessage(
+                              context, 'Max 3 units allowed per order.');
                         }
                       },
                       icon: Icon(Icons.add),

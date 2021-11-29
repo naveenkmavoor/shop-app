@@ -67,34 +67,39 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchProduct() async {
+  Future<List<Product>> fetchProduct() async {
     _items = [];
-    try {
-      final http.Response response =
-          await http.get(Uri.parse(_url + 'products.json')).timeout(
-                const Duration(seconds: 10),
-              );
-
-      final fetchedProduct = json.decode(response.body) as Map<String, dynamic>;
-
-      fetchedProduct.forEach((key, value) {
-        final eachProduct = Product(
-            id: key,
-            title: value['title'],
-            description: value['description'],
-            price: value['price'],
-            imageUrl: value['imageUrl'],
-            isFavorite: value['isFavorite']);
-        _items.add(eachProduct);
-        notifyListeners();
-      });
-    } on TimeoutException {
-      throw HttpException('Timeout Error');
-    } on SocketException {
-      throw HttpException('No Internet conncetion');
-    } on Error {
-      throw HttpException('Something went wrong!');
+    print('entered fetch product');
+    // try {
+    final http.Response response =
+        await http.get(Uri.parse(_url + 'products.json')).timeout(
+              const Duration(seconds: 10),
+            );
+    if (response.body == "null") {
+      return [];
     }
+
+    final fetchedProduct = json.decode(response.body) as Map<String, dynamic>;
+
+    fetchedProduct.forEach((key, value) {
+      final eachProduct = Product(
+          id: key,
+          title: value['title'],
+          description: value['description'],
+          price: value['price'],
+          imageUrl: value['imageUrl'],
+          isFavorite: value['isFavorite']);
+      _items.add(eachProduct);
+    });
+    notifyListeners();
+    return items;
+    // } on TimeoutException {
+    //   throw HttpException('Timeout Error');
+    // } on SocketException {
+    //   throw HttpException('No Internet conncetion');
+    // } on Error {
+    //   throw HttpException('Oops something went wrong');
+    // }
   }
 
   Future<void> deleteProduct(String id) async {

@@ -7,16 +7,26 @@ class ProductEditOverview extends StatelessWidget {
   static const routeName = '/producteditoverview';
 
   Future<void> _fetchItems(BuildContext context) async {
-    await Provider.of<ProductsProvider>(context, listen: false).fetchProduct();
+    try {
+      await Provider.of<ProductsProvider>(context, listen: false)
+          .fetchProduct();
+    } catch (err) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('No Item Found.')));
+    }
   }
 
   void _deleteItems(
       BuildContext context, ProductsProvider provider, int index) async {
     try {
       Navigator.pop(context);
+
+      await Provider.of<Cart>(context, listen: false)
+          .removeItemFromCart(provider.items[index].id);
       await provider.deleteProduct(provider.items[index].id);
     } catch (err) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 1),
         content: Text('$err'),
         backgroundColor: Theme.of(context).secondaryHeaderColor,
       ));
@@ -59,8 +69,7 @@ class ProductEditOverview extends StatelessWidget {
                       ListTile(
                         title: Text('${provider.items[index].title}'),
                         leading: CircleAvatar(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
+                          backgroundColor: Colors.white,
                           backgroundImage:
                               NetworkImage(provider.items[index].imageUrl),
                         ),
